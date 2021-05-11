@@ -12,21 +12,27 @@ import warnings
 import BaseImage
 import sys
 import datetime
+import pathlib
 
-# --- setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-file = logging.FileHandler(filename="error.log")
-file.setLevel(logging.WARNING)
-file.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-logging.getLogger('').addHandler(file)
-
+_HEADLESS = False
 # --- setup plotting backend
 if os.name != "nt" and os.environ.get('DISPLAY', '') == '':
-    logging.info('no display found. Using non-interactive Agg backend')
+    _HEADLESS = True
     mpl.use('Agg')
 else:
     mpl.use('TkAgg')
+
+
+def setup_environment(log_file="error.log"):
+    # --- setup logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    file = logging.FileHandler(filename=log_file)
+    file.setLevel(logging.WARNING)
+    file.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logging.getLogger('').addHandler(file)
+    if _HEADLESS:
+        logging.info('no display found. Using non-interactive Agg backend')
 
 import matplotlib.pyplot as plt
 
@@ -156,6 +162,8 @@ if __name__ == '__main__':
                         help="input filename pattern (try: *.svs or target_path/*.svs ), or tsv file containing list of files to analyze",
                         nargs="*")
     parser.add_argument('-o', '--outdir', help="outputdir, default ./histoqc_output", default="./histoqc_output_DATE_TIME", type=str)
+    parser.add_argument(
+        '-l', '--logdir', help="where to drop the log file, default is in the home folder.", default=pathlib.Path.home(), type=pathlib.Path)
     parser.add_argument('-p', '--basepath',
                         help="base path to add to file names, helps when producing data using existing output file as input",
                         default="", type=str)
@@ -171,6 +179,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     args = parser.parse_args()
+    setup_environment(log_file=pathlib.Path(args.logdir) / "error.log")
 
     config = configparser.ConfigParser()
 
