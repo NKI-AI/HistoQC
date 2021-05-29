@@ -3,12 +3,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get install -y git python3-pip python3.8 \
-    && apt-get install -y openslide-tools
+       pkg-config libtool zlib1g-dev libpng-dev libjpeg-dev libopenjp2-7-dev\
+       libtiff-dev libglib2.0-dev libcairo-dev libgdk-pixbuf2.0-dev libxml2-dev libsqlite3-dev
+
 
 RUN git clone https://github.com/NKI-AI/openslide /tmp/openslide
 WORKDIR /tmp/openslide
 
-RUN autoreconf -i && ./configure && make && make install && ldconfig
+RUN autoreconf -i && ./configure && make && make install && ldconfig && rm -rf /tmp/openslide
 
 # uncomment:
     # 1 - this additional RUN only if you are facing issues with UTF8 when running your container
