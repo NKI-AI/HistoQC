@@ -278,6 +278,6 @@ if __name__ == '__main__':
 
 
     logging.shutdown()
-    shutil.copy("error.log",
+    shutil.copy(pathlib.Path(args.logdir) / "error.log",
                 args.outdir + os.sep + "error.log")  # copy error log to output directory. tried move but the filehandle is never released by logger no matter how hard i try
 
