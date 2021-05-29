@@ -2,17 +2,13 @@ FROM ubuntu:20.10
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-    && apt-get install -y git python3-pip python3.6 pkg-config libtool zlib1g-dev libpng-dev libjpeg-dev libopenjp2-7-dev\
-       libtiff-dev libglib2.0-dev libcairo-dev libgdk-pixbuf2.0-dev libxml2-dev libsqlite3-dev
+    && apt-get install -y git python3-pip python3.8 \
+    && apt-get install -y openslide-tools
 
 RUN git clone https://github.com/NKI-AI/openslide /tmp/openslide
 WORKDIR /tmp/openslide
 
-RUN autoreconf -i
-RUN ./configure
-RUN make
-RUN make install
-RUN ldconfig
+RUN autoreconf -i && ./configure && make && make install && ldconfig
 
 # uncomment:
     # 1 - this additional RUN only if you are facing issues with UTF8 when running your container
@@ -29,6 +25,8 @@ RUN ldconfig
     #ENV LANG pl_PL.UTF-8
     #ENV LANGUAGE pl_PL
     #ENV LC_ALL pl_PL.UTF-8
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 0
 
 RUN cd /opt \
     && git clone https://github.com/NKI-AI/HistoQC.git \
